@@ -176,7 +176,7 @@
             <tr>
                 <td class="signature-box"><span>Signtaure & Stamp</span></td>
                 <td class="signature-box">
-                    <img src="{{ public_path('images\fbr_resized.png') }}" class="fbr-logo" alt="FBR e-invoicing Logo">
+                    <img src="{{ asset('/images/fbr_resized.png') }}" class="fbr-logo" alt="FBR e-invoicing Logo">
                 </td>
             </tr>
         </table>

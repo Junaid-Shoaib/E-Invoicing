@@ -2970,16 +2970,16 @@
         },
         {
             "name": "opis/closure",
-            "version": "3.6.3",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opis/closure.git",
-                "reference": "3d81e4309d2a927abbe66df935f4bb60082805ad"
+                "reference": "b1a22a6be71c1263f3ca6e68f00b3fd4d394abc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opis/closure/zipball/3d81e4309d2a927abbe66df935f4bb60082805ad",
-                "reference": "3d81e4309d2a927abbe66df935f4bb60082805ad",
+                "url": "https://api.github.com/repos/opis/closure/zipball/b1a22a6be71c1263f3ca6e68f00b3fd4d394abc4",
+                "reference": "b1a22a6be71c1263f3ca6e68f00b3fd4d394abc4",
                 "shasum": ""
             },
             "require": {
@@ -3029,9 +3029,9 @@
             ],
             "support": {
                 "issues": "https://github.com/opis/closure/issues",
-                "source": "https://github.com/opis/closure/tree/3.6.3"
+                "source": "https://github.com/opis/closure/tree/3.7.0"
             },
-            "time": "2022-01-27T09:35:39+00:00"
+            "time": "2025-07-08T20:30:08+00:00"
         },
         {
             "name": "phenx/php-font-lib",
@@ -4024,16 +4024,16 @@
         },
         {
             "name": "sabberworm/php-css-parser",
-            "version": "v8.8.0",
+            "version": "v8.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MyIntervals/PHP-CSS-Parser.git",
-                "reference": "3de493bdddfd1f051249af725c7e0d2c38fed740"
+                "reference": "d8e916507b88e389e26d4ab03c904a082aa66bb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MyIntervals/PHP-CSS-Parser/zipball/3de493bdddfd1f051249af725c7e0d2c38fed740",
-                "reference": "3de493bdddfd1f051249af725c7e0d2c38fed740",
+                "url": "https://api.github.com/repos/MyIntervals/PHP-CSS-Parser/zipball/d8e916507b88e389e26d4ab03c904a082aa66bb9",
+                "reference": "d8e916507b88e389e26d4ab03c904a082aa66bb9",
                 "shasum": ""
             },
             "require": {
@@ -4041,7 +4041,8 @@
                 "php": "^5.6.20 || ^7.0.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "5.7.27 || 6.5.14 || 7.5.20 || 8.5.41"
+                "phpunit/phpunit": "5.7.27 || 6.5.14 || 7.5.20 || 8.5.41",
+                "rawr/cross-data-providers": "^2.0.0"
             },
             "suggest": {
                 "ext-mbstring": "for parsing UTF-8 CSS"
@@ -4083,9 +4084,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MyIntervals/PHP-CSS-Parser/issues",
-                "source": "https://github.com/MyIntervals/PHP-CSS-Parser/tree/v8.8.0"
+                "source": "https://github.com/MyIntervals/PHP-CSS-Parser/tree/v8.9.0"
             },
-            "time": "2025-03-23T17:59:05+00:00"
+            "time": "2025-07-11T13:20:48+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -6761,20 +6762,19 @@
         },
         {
             "name": "facade/ignition",
-            "version": "2.17.7",
+            "version": "2.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facade/ignition.git",
-                "reference": "b4f5955825bb4b74cba0f94001761c46335c33e9"
+                "reference": "6d89c4c99537f487ad29f646d57ebf107ef714ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facade/ignition/zipball/b4f5955825bb4b74cba0f94001761c46335c33e9",
-                "reference": "b4f5955825bb4b74cba0f94001761c46335c33e9",
+                "url": "https://api.github.com/repos/facade/ignition/zipball/6d89c4c99537f487ad29f646d57ebf107ef714ed",
+                "reference": "6d89c4c99537f487ad29f646d57ebf107ef714ed",
                 "shasum": ""
             },
             "require": {
-                "ext-curl": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "facade/flare-client-php": "^1.9.1",
@@ -6787,7 +6787,6 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.14",
-                "livewire/livewire": "^2.4",
                 "mockery/mockery": "^1.3",
                 "orchestra/testbench": "^5.0|^6.0",
                 "psalm/plugin-laravel": "^1.2"
@@ -6835,7 +6834,7 @@
                 "issues": "https://github.com/facade/ignition/issues",
                 "source": "https://github.com/facade/ignition"
             },
-            "time": "2023-01-26T12:34:59+00:00"
+            "time": "2021-10-08T12:34:52+00:00"
         },
         {
             "name": "facade/ignition-contracts",

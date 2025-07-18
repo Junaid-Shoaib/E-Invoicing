@@ -22,6 +22,10 @@ Route::get('/', function () {
     return redirect()->route('customers.index');
 });
 
+Route::get('/test', function() {
+ dd(Carbon\Carbon::now()->format('Y-m-d h:i:s'));
+});
+
 Auth::routes();
 
 Route::get('admin/home', [HomeController::class, 'adminHome'])->name('admin.home')->middleware('is_admin');
