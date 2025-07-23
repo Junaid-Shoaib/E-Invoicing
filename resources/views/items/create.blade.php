@@ -11,10 +11,10 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('items.store') }}">
+                    <form method="POST" action="{{ route('items.store') }}" onsubmit="disableSubmitButton(this)">
                         @csrf
                         @include('items.form')
-                        <button type="submit" class="btn btn-primary">Save Item</button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Save Item</button>
                     </form>
                 </div>
             </div>

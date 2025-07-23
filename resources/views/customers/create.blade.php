@@ -9,29 +9,41 @@
                     <a href="{{ route('customers.index') }}" class="btn btn-sm btn-secondary">Back</a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('customers.store') }}" method="POST">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form action="{{ route('customers.store') }}" method="POST" onsubmit="disableSubmitButton(this)">
                         @csrf
                         <div class="form-group mb-3">
                             <label for="name">Name *</label>
-                            <input type="text" name="name" class="form-control" required>
+                            <input type="text" name="name"   class="form-control" required>
                         </div>
-
                         <div class="form-group mb-3">
                             <label for="address">Address</label>
-                            <input type="text" name="address" class="form-control">
+                            <input type="text" name="address" value="{{ old('address') }}" class="form-control">
                         </div>
 
                         <div class="form-group mb-3">
                             <label for="phone">Phone</label>
-                            <input type="text" name="phone" class="form-control">
+                            <input type="text" name="phone" value="{{ old('phone') }}" class="form-control">
                         </div>
 
                         <div class="form-group mb-3">
                             <label for="ntn_cnic">NTN / CNIC</label>
-                            <input type="text" name="ntn_cnic" class="form-control">
+                            <input type="number" name="ntn_cnic" value="{{ old('ntn_cnic') }}" class="form-control">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="ntn_cnic">Destination Province</label>
+                            <input type="text" name="province" value="{{ old('province') }}" class="form-control">
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save Customer</button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Save Customer</button>
                     </form>
                 </div>
             </div>

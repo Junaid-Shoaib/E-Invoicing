@@ -9,6 +9,15 @@
                     <a href="{{ route('customers.index') }}" class="btn btn-sm btn-secondary">Back</a>
                 </div>
                 <div class="card-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <form action="{{ route('customers.update', $customer->id) }}" method="POST">
                         @csrf
                         @method('PUT')
@@ -30,7 +39,12 @@
 
                         <div class="form-group mb-3">
                             <label for="ntn_cnic">NTN / CNIC</label>
-                            <input type="text" name="ntn_cnic" class="form-control" value="{{ $customer->ntn_cnic }}">
+                            <input type="number" name="ntn_cnic" class="form-control" value="{{ $customer->ntn_cnic }}">
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="province">Destination Provice</label>
+                            <input type="text" name="province" class="form-control" value="{{ $customer->province }}">
                         </div>
 
                         <button type="submit" class="btn btn-primary">Update Customer</button>

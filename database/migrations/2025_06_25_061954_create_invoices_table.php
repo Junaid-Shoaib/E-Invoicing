@@ -17,8 +17,10 @@ class CreateInvoicesTable extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->string('invoice_no')->unique();
+            $table->string('invoice_type')->default('Sale Invoice');
             $table->date('date_of_supply');
             $table->time('time_of_supply')->nullable();
+            $table->integer('posting')->default(0);
             $table->timestamps();
         });
 

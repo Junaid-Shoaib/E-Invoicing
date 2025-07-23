@@ -19,8 +19,8 @@ class CreateItemsTable extends Migration
             $table->string('name');
             $table->string('unit')->nullable();
             $table->text('description')->nullable();
-            $table->decimal('unit_price', 10, 2);
-            $table->integer('quantity');
+            $table->decimal('unit_price', 10, 2)->nullable();
+            $table->integer('quantity')->nullable();
             $table->decimal('st_rate', 5, 2)->nullable(); // Sales Tax Rate %
             $table->timestamps();
         });

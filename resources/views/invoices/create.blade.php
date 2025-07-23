@@ -20,10 +20,10 @@
                             </ul>
                         </div>
                     @endif
-                    <form method="POST" action="{{ route('invoices.store') }}">
+                    <form method="POST" action="{{ route('invoices.store') }}" onsubmit="disableSubmitButton(this)">
                         @csrf
                         @include('invoices.form')
-                        <button type="submit" class="btn btn-primary">Save Invoice</button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">Save Invoice</button>
                     </form>
                 </div>
             </div>

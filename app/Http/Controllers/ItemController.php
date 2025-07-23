@@ -61,9 +61,9 @@ class ItemController extends Controller
             'name' => 'required',
             'unit' => 'required',
             'description' => 'nullable',
-            'unit_price' => 'required|numeric',
-            'quantity' => 'required|integer',
-            'st_rate' => 'required|numeric',
+            // 'unit_price' => 'required|numeric',
+            // 'quantity' => 'required|integer',
+            // 'st_rate' => 'required|numeric',
         ]);
 
         Item::create($request->all());
@@ -83,9 +83,9 @@ class ItemController extends Controller
             'name' => 'required',
             'unit' => 'required',
             'description' => 'nullable',
-            'unit_price' => 'required|numeric',
-            'quantity' => 'required|integer',
-            'st_rate' => 'required|numeric',
+            // 'unit_price' => 'required|numeric',
+            // 'quantity' => 'required|integer',
+            // 'st_rate' => 'required|numeric',
         ]);
 
         $item->update($request->all());

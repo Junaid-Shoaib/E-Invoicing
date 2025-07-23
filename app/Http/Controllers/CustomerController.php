@@ -66,9 +66,10 @@ class CustomerController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'address' => 'nullable',
-            'phone' => 'nullable',
-            'ntn_cnic' => 'nullable',
+            'address' => 'required',
+            'phone' => 'required',
+            'ntn_cnic' => 'required',
+            'province' => 'required',
         ]);
 
         Customer::create($request->all());
@@ -84,9 +85,10 @@ class CustomerController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'address' => 'nullable',
-            'phone' => 'nullable',
-            'ntn_cnic' => 'nullable',
+            'address' => 'required',
+            'phone' => 'required',
+            'ntn_cnic' => 'required',
+            'province' => 'required',
         ]);
 
         $customer->update($request->all());

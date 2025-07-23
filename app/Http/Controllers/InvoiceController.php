@@ -34,8 +34,7 @@ class InvoiceController extends Controller
             return DataTables::of($query)
                 ->addColumn('customer', fn($row) => $row->customer->name)
                 ->addColumn('action', function ($row) {
-                    return '
-                        <a href="' . route('invoices.edit', $row->id) . '" class="btn btn-sm btn-warning">
+                    $btn = '<a href="' . route('invoices.edit', $row->id) . '" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
@@ -45,15 +44,20 @@ class InvoiceController extends Controller
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </form>
-
                         <a href="' . route('invoices.print', $row->id) . '" class="btn btn-sm btn-outline-primary" target="_blank">
-                            <i class="fas fa-print"></i> Print
-                        </a>
-
-                        <a href="' . route('invoices.pdf', $row->id) . '" class="btn btn-sm btn-outline-danger" target="_blank">
+                                <i class="fas fa-print"></i> Print
+                            </a>
+                            <a href="' . route('invoices.pdf', $row->id) . '" class="btn btn-sm btn-outline-danger" target="_blank">
                             <i class="fas fa-file-pdf"></i> PDF
-                        </a>
-                    ';
+                        </a>';
+                         if($row->posting == 0){
+                            $btn .= '
+                            <a href="' . route('invoices.posting', $row->id) . '" class="btn btn-sm btn-outline-primary ml-2">
+                                <i class="fas fa-upload"></i> Invoice Post
+                            </a>';
+                        };
+
+                    return $btn;
 
                 })
                 ->rawColumns(['action'])
@@ -139,30 +143,24 @@ class InvoiceController extends Controller
             'items.*.total' => 'required|numeric',
         ]);
 
-        // Stock validation
-        foreach ($request->items as $i => $itemData) {
-            $item = Item::find($itemData['item_id']);
-            if (!$item || $item->quantity < $itemData['quantity']) {
-                return back()->withInput()->with('items', Item::all())->withErrors([
-                    "items.$i.quantity" => "Item '{$item->name}' has only {$item->quantity} in stock.",
-                ]);
-            }
-        }
+        $prefix = now()->format('Ym');
+
+        $count = Invoice::where('invoice_no', 'LIKE', "{$prefix}-%")->count();
+
+        $nextNumber = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+
+        $invoiceNo = "{$prefix}-{$nextNumber}";
+
 
         $invoice = Invoice::create([
             'customer_id' => $request->customer_id,
-            'invoice_no' => 'INV-' . now()->format('YmdHis') . rand(100, 999),
+            'invoice_no' => $invoiceNo,
             'date_of_supply' => $request->date_of_supply,
             'time_of_supply' => $request->time_of_supply,
         ]);
 
         foreach ($request->items as $itemData) {
             $invoice->items()->create($itemData);
-
-            // Subtract from stock
-            $item = Item::find($itemData['item_id']);
-            $item->quantity -= $itemData['quantity'];
-            $item->save();
         }
 
         return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
@@ -195,14 +193,6 @@ class InvoiceController extends Controller
             'items.*.total' => 'required|numeric',
         ]);
 
-        // Restore previous stock
-        foreach ($invoice->items as $oldItem) {
-            $item = Item::find($oldItem->item_id);
-            if ($item) {
-                $item->quantity += $oldItem->quantity;
-                $item->save();
-            }
-        }
 
         $invoice->update([
             'customer_id' => $request->customer_id,
@@ -213,18 +203,8 @@ class InvoiceController extends Controller
         $invoice->items()->delete(); // remove all old items
 
         // Check and apply new stock
-        foreach ($request->items as $i => $itemData) {
-            $item = Item::find($itemData['item_id']);
-            if (!$item || $item->quantity < $itemData['quantity']) {
-                return back()->withInput()->with('items', Item::all())->withErrors([
-                    "items.$i.quantity" => "Item '{$item->name}' has only {$item->quantity} in stock.",
-                ]);
-            }
-
+        foreach ($request->items as $i => $itemData) { 
             $invoice->items()->create($itemData);
-
-            $item->quantity -= $itemData['quantity'];
-            $item->save();
         }
 
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
@@ -234,6 +214,7 @@ class InvoiceController extends Controller
 
     public function destroy(Invoice $invoice)
     {
+        $invoice->items()->delete(); 
         $invoice->delete();
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
     }
@@ -247,7 +228,7 @@ class InvoiceController extends Controller
     public function pdf(Invoice $invoice)
     {   
         $invoice->load('customer', 'items.item');
-        $pdf = PDF::loadView('invoices.invoice', compact('invoice'));
+        $pdf = PDF::loadView('invoices.print', compact('invoice'));
         return $pdf->download('invoice_' . $invoice->invoice_no . '.pdf');
     }
 }

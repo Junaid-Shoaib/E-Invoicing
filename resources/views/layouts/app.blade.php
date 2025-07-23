@@ -138,5 +138,12 @@
         toastr.error("{{ session('error') }}");
     @endif
 </script>
+<script>
+    function disableSubmitButton(form) {
+        const button = form.querySelector('#submit-btn');
+        button.disabled = true;
+        button.innerText = 'Saving...'; // Optional
+    }
+</script>
 @stack('scripts')
 </html>

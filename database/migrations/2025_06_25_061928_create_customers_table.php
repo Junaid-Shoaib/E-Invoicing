@@ -19,6 +19,7 @@ class CreateCustomersTable extends Migration
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('ntn_cnic')->nullable();
+            $table->string('province')->nullable();
             $table->timestamps();
         });
 

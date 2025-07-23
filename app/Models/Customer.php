@@ -13,6 +13,7 @@ class Customer extends Model
         'address',
         'phone',
         'ntn_cnic',
+        'province'
     ];
 
     // Relationship: Customer has many Invoices

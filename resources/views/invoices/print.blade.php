@@ -83,7 +83,9 @@
     <h2>Sales Tax Invoice</h2>
     <table class="no-border">
         <tr>
-            <td><strong>Invoice No:</strong> {{ $invoice->invoice_no }}</td>
+            <td><strong>Invoice No:</strong> {{ $invoice->invoice_no }}
+            <br>
+            <strong>Tax Period:</strong> {{ \Carbon\Carbon::parse($invoice->date_of_supply)->format('Ym') }}</td>
             <td style="text-align: right;">
                 <strong>Date:</strong> {{ \Carbon\Carbon::parse($invoice->date_of_supply)->format('d/m/Y') }}
                 {{ \Carbon\Carbon::parse($invoice->time_of_supply)->format('h:i A') }}
@@ -109,6 +111,11 @@
 
     <table>
         <tr>
+            <td style="width: 50%;"><strong>Sale Origination Province:</strong> Sindh </td>
+            <td><strong>Destination Province:</strong> {{ $invoice->customer->province ?? '-' }}</td>
+            
+        </tr>
+        <tr>
             <td style="width: 50%;"><strong>Telephone No:</strong> 021-35660293</td>
             <td><strong>Telephone No:</strong> {{ $invoice->customer->phone ?? '-' }}</td>
         </tr>
@@ -125,36 +132,42 @@
             <tr>
                 <th>H.S. Code</th>
                 <th>Description of Goods</th>
+                <th>Invoice Type</th>
+                <th>Sale Type</th>
+                <th>Rate</th>
                 <th>UOM</th>
                 <th>Quantity</th>
-                <th>Value of Sales Excl. Sales Tax</th>
-                <th>Rate</th>
-                <th>Sales Tax/FED in ST</th>
+                <th>Value of Sales <br> Excluding Sales tax</th>
+                <th>Sales Tax/FED <br> in ST</th>
+                <th>ST withheld <br> as WH</th>
                 <th>Extra Tax</th>
                 <th>Further Tax</th>
                 <th>Total</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($invoice->items as $item)
+            @foreach($invoice->items as $inv_item)
                 <tr>
-                    <td>{{ $item->item->hs_code }}</td>
-                    <td>{{ $item->item->name }}</td>
-                    <td>{{ $item->item->unit }}</td>
-                    <td>{{ $item->quantity }}</td>
-                    <td>{{ number_format($item->value_of_goods, 2) }}</td>
-                    <td>{{ number_format($item->sale_tax_rate, 2) }}%</td>
-                    <td>{{ number_format($item->amount_of_saleTax, 2) }}</td>
-                    <td>{{ number_format($item->extra_tax, 2) }}</td>
-                    <td>{{ number_format($item->further_tax, 2) }}</td>
-                    <td>{{ number_format($item->total, 2) }}</td>
+                    <td>{{ $inv_item->item->hs_code }}</td>
+                    <td>{{ $inv_item->item->name }}</td>
+                    <td>{{ $invoice->invoice_type }}</td>
+                    <td>{{  $inv_item->sale_Type }}</td>
+                    <td>{{ number_format($inv_item->sale_tax_rate, 2) }}%</td>
+                    <td>{{ $inv_item->item->unit }}</td>
+                    <td>{{ $inv_item->quantity }}</td>
+                    <td>{{ number_format($inv_item->value_of_goods, 2) }}</td>
+                    <td>{{ number_format($inv_item->amount_of_saleTax, 2) }}</td>
+                    <td>{{ number_format($inv_item->sale_tax_withheld, 2) }}</td>
+                    <td>{{ number_format($inv_item->extra_tax, 2) }}</td>
+                    <td>{{ number_format($inv_item->further_tax, 2) }}</td>
+                    <td>{{ number_format($inv_item->total, 2) }}</td>
                 </tr>
             @endforeach
 
             {{-- Empty rows --}}
             @for($i = $invoice->items->count(); $i < 5; $i++)
                 <tr>
-                    @for($j = 0; $j < 10; $j++)
+                    @for($j = 0; $j < 13; $j++)
                         <td>&nbsp;</td>
                     @endfor
                 </tr>
@@ -174,7 +187,7 @@
     <div class="footer-section">
         <table style="width: 100%; margin-top: 40px;">
             <tr>
-                <td class="signature-box"><span>Signtaure & Stamp</span></td>
+                <td></td>
                 <td class="signature-box">
                     <img src="{{ asset('/images/fbr_resized.png') }}" class="fbr-logo" alt="FBR e-invoicing Logo">
                 </td>

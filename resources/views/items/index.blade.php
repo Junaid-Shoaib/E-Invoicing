@@ -10,7 +10,6 @@
                         <i class="fas fa-plus"></i> Create
                     </a>
                 </div>
-
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered" id="items-table" style="width:100%">
@@ -18,11 +17,11 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>H.S. Code</th>
-                                    <th>Name</th>
-                                    <th>Unit</th>
-                                    <th>Price</th>
+                                    <th>Product Name</th>
+                                    <th>UoM</th>
+                                    {{-- <th>Price</th>
                                     <th>Quantity</th>
-                                    <th>ST Rate</th>
+                                    <th>ST Rate</th> --}}
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -46,9 +45,6 @@
                 { data: 'hs_code', name: 'hs_code' },
                 { data: 'name', name: 'name' },
                 { data: 'unit', name: 'unit' },
-                { data: 'unit_price', name: 'unit_price' },
-                { data: 'quantity', name: 'quantity' },
-                { data: 'st_rate', name: 'st_rate' },
                 { data: 'action', name: 'action', orderable: false, searchable: false },
             ]
         });
