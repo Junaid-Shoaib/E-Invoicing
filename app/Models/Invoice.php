@@ -13,6 +13,8 @@ class Invoice extends Model
         'invoice_no',
         'date_of_supply',
         'time_of_supply',
+	'fbr_invoice_no',
+	'response',
     ];
 
     // Relationship: Invoice belongs to Customer

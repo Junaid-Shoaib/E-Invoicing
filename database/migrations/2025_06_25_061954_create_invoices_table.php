@@ -21,7 +21,9 @@ class CreateInvoicesTable extends Migration
             $table->date('date_of_supply');
             $table->time('time_of_supply')->nullable();
             $table->integer('posting')->default(0);
-            $table->timestamps();
+            $table->string('fbr_invoice_no')->nullable();
+	    $table->text('response')->nullable();
+	    $table->timestamps();
         });
 
     }

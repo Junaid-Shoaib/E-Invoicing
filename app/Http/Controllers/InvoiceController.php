@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
@@ -33,8 +34,11 @@ class InvoiceController extends Controller
             // $data = Invoice::with('customer')->latest()->get();
             return DataTables::of($query)
                 ->addColumn('customer', fn($row) => $row->customer->name)
+                ->addColumn('fbr_invoice_no', fn($row) => $row->fbr_invoice_no != null ? $row->fbr_invoice_no : '-')
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="' . route('invoices.edit', $row->id) . '" class="btn btn-sm btn-warning">
+                    $btn = null;
+                    if ($row->posting == 0) {
+                        $btn .= '<a href="' . route('invoices.edit', $row->id) . '" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
@@ -44,26 +48,25 @@ class InvoiceController extends Controller
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </form>
-                        <a href="' . route('invoices.print', $row->id) . '" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <a href="' . route('invoices.posting', $row->id) . '" class="btn btn-sm btn-outline-primary ml-2">
+                                <i class="fas fa-upload"></i> Invoice Post
+                            </a>';
+                    };
+                    $btn .= '
+            			<a href="' . route('invoices.print', $row->id) . '" class="btn btn-sm btn-outline-primary" target="_blank">
                                 <i class="fas fa-print"></i> Print
                             </a>
                             <a href="' . route('invoices.pdf', $row->id) . '" class="btn btn-sm btn-outline-danger" target="_blank">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>';
-                         if($row->posting == 0){
-                            $btn .= '
-                            <a href="' . route('invoices.posting', $row->id) . '" class="btn btn-sm btn-outline-primary ml-2">
-                                <i class="fas fa-upload"></i> Invoice Post
-                            </a>';
-                        };
+
 
                     return $btn;
-
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['fbr_invoice_no','action'])
                 ->make(true);
         }
-         $customers = Customer::orderBy('name')->get();
+        $customers = Customer::orderBy('name')->get();
 
         return view('invoices.index', compact('customers'));
     }
@@ -71,49 +74,49 @@ class InvoiceController extends Controller
     public function exportExcel(Request $request)
     {
         $query = Invoice::with(['customer', 'items']);
-        
+
         if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }
-        if($request->filled('start_date') && $request->filled('end_date')) {
+        if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date_of_supply', [$request->start_date, $request->end_date]);
         }
-        
+
         $invoices = $query->get();
         return Excel::download(new InvoicesExport($invoices), 'filtered_invoices.xlsx');
     }
 
     public function exportPdf(Request $request)
-{
-    $query = Invoice::with(['customer', 'items']);
+    {
+        $query = Invoice::with(['customer', 'items']);
 
-    if ($request->filled('customer_id')) {
+        if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date_of_supply', [$request->start_date, $request->end_date]);
+        }
+
+        $invoices = $query->get();
+
+        $customer = null;
+        if ($request->filled('customer_id')) {
+            $customer = \App\Models\Customer::find($request->customer_id) ? \App\Models\Customer::find($request->customer_id)->name : 'All';
+        }
+
+        // Totals
+        $totals = [
+            'totalBeforeTax' => $invoices->sum(fn($i) => $i->items->sum('value_of_goods')),
+            'saleTax'        => $invoices->sum(fn($i) => $i->items->sum('amount_of_saleTax')),
+            'extraTax'       => $invoices->sum(fn($i) => $i->items->sum('extra_tax')),
+            'furtherTax'     => $invoices->sum(fn($i) => $i->items->sum('further_tax')),
+            'grandTotal'     => $invoices->sum(fn($i) => $i->items->sum('total')),
+        ];
+
+        $pdf = PDF::loadView('invoices.exports.export_pdf', compact('invoices', 'customer', 'totals', 'request'));
+
+        return $pdf->download('invoices.pdf');
     }
-    if($request->filled('start_date') && $request->filled('end_date')) {
-        $query->whereBetween('date_of_supply', [$request->start_date, $request->end_date]);
-    }
-
-    $invoices = $query->get();
-
-    $customer = null;
-    if ($request->filled('customer_id')) {
-        $customer = \App\Models\Customer::find($request->customer_id)? \App\Models\Customer::find($request->customer_id)->name : 'All';
-    }
-
-    // Totals
-    $totals = [
-        'totalBeforeTax' => $invoices->sum(fn($i) => $i->items->sum('value_of_goods')),
-        'saleTax'        => $invoices->sum(fn($i) => $i->items->sum('amount_of_saleTax')),
-        'extraTax'       => $invoices->sum(fn($i) => $i->items->sum('extra_tax')),
-        'furtherTax'     => $invoices->sum(fn($i) => $i->items->sum('further_tax')),
-        'grandTotal'     => $invoices->sum(fn($i) => $i->items->sum('total')),
-    ];
-
-    $pdf = PDF::loadView('invoices.exports.export_pdf', compact('invoices', 'customer', 'totals', 'request'));
-
-    return $pdf->download('invoices.pdf');
-}
 
 
     public function create()
@@ -123,9 +126,9 @@ class InvoiceController extends Controller
         return view('invoices.create', compact('customers', 'items'));
     }
 
-    
 
-   public function store(Request $request)
+
+    public function store(Request $request)
     {
         $request->validate([
             'customer_id' => 'required',
@@ -203,7 +206,7 @@ class InvoiceController extends Controller
         $invoice->items()->delete(); // remove all old items
 
         // Check and apply new stock
-        foreach ($request->items as $i => $itemData) { 
+        foreach ($request->items as $i => $itemData) {
             $invoice->items()->create($itemData);
         }
 
@@ -214,7 +217,7 @@ class InvoiceController extends Controller
 
     public function destroy(Invoice $invoice)
     {
-        $invoice->items()->delete(); 
+        $invoice->items()->delete();
         $invoice->delete();
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
     }
@@ -222,13 +225,15 @@ class InvoiceController extends Controller
     public function print(Invoice $invoice)
     {
         $invoice->load('customer', 'items.item');
-        return view('invoices.print', compact('invoice'));
+        $isPdf = false;
+        return view('invoices.print', compact('isPdf','invoice' ));
     }
 
     public function pdf(Invoice $invoice)
-    {   
+    {
         $invoice->load('customer', 'items.item');
-        $pdf = PDF::loadView('invoices.print', compact('invoice'));
+        $isPdf = true;
+        $pdf = PDF::loadView('invoices.print', compact('invoice','isPdf'));
         return $pdf->download('invoice_' . $invoice->invoice_no . '.pdf');
     }
 }

@@ -45,6 +45,7 @@
                                     <th>Customer</th>
                                     <th>Date</th>
                                     <th>Time</th>
+                                    <th>FBR Invoice No</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -76,6 +77,7 @@
             { data: 'customer', name: 'customer.name' },
             { data: 'date_of_supply', name: 'date_of_supply' },
             { data: 'time_of_supply', name: 'time_of_supply' },
+            { data: 'fbr_invoice_no', name: 'fbr_invoice_no' },
             { data: 'action', name: 'action', orderable: false, searchable: false },
         ]
     });

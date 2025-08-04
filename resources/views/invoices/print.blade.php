@@ -17,11 +17,15 @@
             border-collapse: collapse;
         }
 
+       
         th,
         td {
             border: 1px solid #000;
             padding: 6px;
             text-align: left;
+            font-size: 11px;
+            word-wrap: break-word;
+       
         }
 
         .no-border td {
@@ -67,13 +71,27 @@
             border-right: none;
             text-align: center;
             vertical-align: bottom;
-        
-
         }
 
         .fbr-logo {
             width: 150px;
-            float: center;
+            display: block;
+            margin-right: 0;
+        }
+
+        .fbr-logo {
+            height: 100px;
+            display: block;
+        }
+
+
+        @page{
+            size: A4;
+            margin: 20px;
+        }
+        body {
+            font-family: sans-serif;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -130,19 +148,19 @@
     <table>
         <thead>
             <tr>
-                <th>H.S. Code</th>
-                <th>Description of Goods</th>
-                <th>Invoice Type</th>
-                <th>Sale Type</th>
-                <th>Rate</th>
-                <th>UOM</th>
-                <th>Quantity</th>
-                <th>Value of Sales <br> Excluding Sales tax</th>
-                <th>Sales Tax/FED <br> in ST</th>
-                <th>ST withheld <br> as WH</th>
-                <th>Extra Tax</th>
-                <th>Further Tax</th>
-                <th>Total</th>
+                <th style="width: 6%;">H.S. Code</th>
+                <th style="width: 15%;">Description of Goods</th>
+                <th style="width: 9%;">Invoice Type</th>
+                <th style="width: 9%;">Sale Type</th>
+                <th style="width: 6%;">Rate</th>
+                <th style="width: 5%;">UOM</th>
+                <th style="width: 6%;">Qty</th>
+                <th style="width: 10%;">Value (Excl. ST)</th>
+                <th style="width: 10%;">Sales Tax/FED</th>
+                <th style="width: 8%;">ST WH</th>
+                <th style="width: 6%;">Extra Tax</th>
+                <th style="width: 6%;">Further Tax</th>
+                <th style="width: 10%;">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -187,9 +205,32 @@
     <div class="footer-section">
         <table style="width: 100%; margin-top: 40px;">
             <tr>
-                <td></td>
-                <td class="signature-box">
-                    <img src="{{ asset('/images/fbr_resized.png') }}" class="fbr-logo" alt="FBR e-invoicing Logo">
+                <td style="text-align: right;">
+                    @if($invoice->fbr_invoice_no != null)
+                        @if($isPdf)
+                            @php
+                                $qr = base64_encode(QrCode::format('png')->size(100)->generate($invoice->fbr_invoice_no));
+                            @endphp
+                            @if($qr)
+                                <div style="display: inline-block; text-align: center;">
+                                    <img src="data:image/png;base64,{{ $qr }}" width="100" height="100">
+                                    <div style="font-size: 12px; margin-top: 5px;">
+                                        {{ $invoice->fbr_invoice_no }}
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            <div style="display: inline-block; text-align: center;">
+                                {!! QrCode::size(100)->generate($invoice->fbr_invoice_no) !!}
+                                <div style="font-size: 12px; margin-top: 5px;">
+                                    {{ $invoice->fbr_invoice_no }}
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+                </td>
+                <td style="text-align: left; vertical-align: middle;">
+                    <img src="{{ asset('/images/fbr_resized.png') }}" class="fbr-logo" alt="FBR e-invoicing Logo" style="height: 100px;">
                 </td>
             </tr>
         </table>

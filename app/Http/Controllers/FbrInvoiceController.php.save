@@ -1,0 +1,119 @@
+<?php
+
+
+namespace App\Http\Controllers;
+
+use App\Models\Invoice;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
+class FbrInvoiceController extends Controller
+{
+
+    public function posting(Invoice $invoice){
+        
+	
+        $invoiceData = [
+            'invoiceType' => $invoice->invoice_type,
+            'invoiceDate' => Carbon::parse($invoice->date_of_supply)->format('Y-m-d'),
+            'sellerNTNCNIC' => '1000645-1',
+            'sellerBusinessName' => 'Petrochemical & Lubricants Co(Pvt) Ltd',
+            'sellerProvince' => 'Sindh',
+            'sellerAddress' => '2nd Floor, Statelife Building No 3, Dr Zia Uddin Ahmed Road, Karachi',
+
+           
+	    //'buyerNTNCNIC' => '1000000000000',
+           // 'buyerBusinessName' => "FERTILIZER MANUFAC IRS NEW",
+            //'buyerProvince' => 'Sindh',
+            //'buyerAddress' => 'Karachi',
+
+	    'buyerNTNCNIC' => "",
+	    'buyerBusinessName' => "Muniff Ziauddin & Co.",
+            'buyerProvince' => "Sindh",
+            'buyerAddress' => "Business Executive Center F/17/3, Block 8, Clifton, Karachi",
+            'buyerRegistrationType' => 'Unregistered',
+            'invoiceRefNo' => $invoice->invoice_no,
+	    //'invoiceRefNo' => "",	
+            'scenarioId' => 'SN001',
+            'items' => $invoice->items->map(function ($item) {
+                    return [
+                        'hsCode' => $item->item->hs_code,
+                        'productDescription' => $item->item->name ?? $item->item->description ,
+                        'rate' => $item->sale_tax_rate . '%',
+                        'uoM' => $item->item->unit ?? 'Unit',
+                        'quantity' => $item->quantity,
+                        'totalValues' => $item->total, 
+                        'valueSalesExcludingST' => $item->value_of_goods,
+                        'fixedNotifiedValueOrRetailPrice' => 0,
+                        'salesTaxApplicable' => $item->amount_of_saleTax,
+                        'salesTaxWithheldAtSource' => $item->sale_tax_withheld ?? 0,
+                        'extraTax' => $item->extra_tax ?? '',
+                        'furtherTax' => $item->further_tax ?? '',
+                        'sroScheduleNo' => '',
+                        'fedPayable' => 0,
+                        'discount' => 0,
+                        'saleType' => $item->sale_type ?? 'Goods at standard rate (default)',
+                        'sroItemSerialNo' => ''
+                    ];
+                })->toArray()
+        ];
+
+        //$response = Http::withToken('769de299-8a51-31a3-a325-6ddfa2b6b763')->get('https://gw.fbr.gov.pk/pdi/v1/provinces'); 
+       // if ($response->successful()) {
+
+
+
+    
+        // Handle successful response
+        //    return  response()->json([
+         //       'message' => '1Response from API',
+          //      'data' => $response->json()
+           // ]);
+       // } else {
+            // Handle error response
+        //    return response()->json([
+         //       'error' => [
+          //          'status' => $response->status(),
+           //         'message' => $response->body()
+           //     ]
+          //  ], $response-status());
+       // }
+	    $url = 'https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata_sb'; // Replace with FBR API URL
+    $token = '769de299-8a51-31a3-a325-6ddfa2b6b763'; // Replace with actual token
+	
+$jsonData = '{"invoiceType": "Sale Invoice","invoiceDate": "2025-07-24","sellerNTNCNIC": "1000645","sellerBusinessName": "Petrochemical & Lubricants Co(Pvt) Ltd","sellerProvince": "SINDH","sellerAddress": "nd Floor, Statelife Building No 3,Dr Zia Uddin Ahmed Road, Karachi","buyerNTNCNIC": "0815616-6","buyerBusinessName": "Cnergyico Pk Limited","buyerProvince": "SINDH","buyerAddress": "The Harbour Front 9th Floor,Dolmen City HC-3 Block 04,Marine Drive  Clifton,Karachi","buyerRegistrationType": "Registered","invoiceRefNo": "","scenarioId": "SN001","items": [{"hsCode": "3811.2100","productDescription": "Additives for Lubricating Oil","rate": "18%","uoM": "","quantity": 200,"totalValues": 1180000,"valueSalesExcludingST": 1000000,"fixedNotifiedValueOrRetailPrice": 0,"salesTaxApplicable": 180000,"salesTaxWithheldAtSource":  0,"extraTax": "","furtherTax": 0,"sroScheduleNo": "","fedPayable": 0,"discount": 0,"saleType": "Goods at standard rate (default)","sroItemSerialNo": ""}]}';
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+ 	'Authorization: Bearer ' . $token,
+    	'Content-Type: application/json',
+      ]);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+
+    curl_close($ch);
+
+    // Convert response to array (if JSON)
+    $responseData = json_decode($response, true);
+
+    if ($curlError) {
+        return response()->json([
+            'error' => 'Curl Error: ' . $curlError
+        ], 500);
+    }
+
+    return response()->json([
+        'status' => $httpCode,
+        'response' => $responseData
+    ]);
+
+
+    }
+}
+
