@@ -20,44 +20,85 @@ class FbrInvoiceController extends Controller
         $apiUrl = "https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata_sb"; 
         $apiKey = env('apiKey'); // Store API key in .env file
 
-        $payload = [
-            'invoiceType' => $invoice->invoice_type,
-            'invoiceDate' => Carbon::parse($invoice->date_of_supply)->format('Y-m-d'),
-            'sellerNTNCNIC' => env('sellerNTNCNIC'),
-            'sellerBusinessName' => env('sellerBusinessName'),
-            'sellerProvince' =>  env('sellerProvince'),
-            'sellerAddress' =>  env('sellerAddress'),
-
-            'buyerNTNCNIC' => $invoice->customer->ntn_cnic,
-            'buyerBusinessName' => $invoice->customer->name,
-            'buyerProvince' => $invoice->customer->province,
-            'buyerAddress' => $invoice->customer->address,
-            'buyerRegistrationType' => 'Registered',
-            'invoiceRefNo' => $invoice->invoice_no,
-            'scenarioId' => 'SN001',
-            'items' => $invoice->items->map(function ($item) {
-                    return [
-                        'hsCode' => $item->item->hs_code,
-                        'productDescription' => $item->item->name ?? $item->item->description ,
-                        'rate' => $item->sale_tax_rate . '%',
-                        'uoM' => "Numbers, pieces, units",
-                        'quantity' => (int)$item->quantity,
-                        'totalValues' => (int)$item->total, 
-                        'valueSalesExcludingST' => (int)$item->value_of_goods,
-                        'fixedNotifiedValueOrRetailPrice' => 0,
-                        'salesTaxApplicable' => (int)$item->amount_of_saleTax,
-                        'salesTaxWithheldAtSource' => (int)$item->sale_tax_withheld ?? 0,
-                        'extraTax' => (int)$item->extra_tax ?? '',
-                        'furtherTax' => (int)$item->further_tax ?? '',
-                        'sroScheduleNo' => '',
-                        'fedPayable' => 0,
-                        'discount' => 0,
-                        'saleType' => $item->sale_type ?? 'Goods at standard rate (default)',
-                        'sroItemSerialNo' => ''
-                    ];
-                })->toArray()
-        ];
-        // dd($payload);
+        if($invoice->registration_type === "Registered"){
+            $payload = [
+                'invoiceType' => $invoice->invoice_type,
+                'invoiceDate' => Carbon::parse($invoice->date_of_supply)->format('Y-m-d'),
+                'sellerNTNCNIC' => env('sellerNTNCNIC'),
+                'sellerBusinessName' => env('sellerBusinessName'),
+                'sellerProvince' =>  env('sellerProvince'),
+                'sellerAddress' =>  env('sellerAddress'),
+    
+                'buyerNTNCNIC' => $invoice->customer->ntn_cnic,
+                'buyerBusinessName' => $invoice->customer->name,
+                'buyerProvince' => $invoice->customer->province,
+                'buyerAddress' => $invoice->customer->address,
+                'buyerRegistrationType' => 'Registered',
+                'invoiceRefNo' => $invoice->invoice_no,
+                'scenarioId' => 'SN001',
+                'items' => $invoice->items->map(function ($item) {
+                        return [
+                            'hsCode' => $item->item->hs_code,
+                            'productDescription' => $item->item->name ?? $item->item->description ,
+                            'rate' => round($item->sale_tax_rate) . '%',
+                            'uoM' => $item->item->unit,
+                            'quantity' => round($item->quantity),
+                            'totalValues' => round($item->total), 
+                            'valueSalesExcludingST' => round($item->value_of_goods),
+                            'fixedNotifiedValueOrRetailPrice' => 0,
+                            'salesTaxApplicable' => $item->amount_of_saleTax,
+                            'salesTaxWithheldAtSource' => round($item->sale_tax_withheld ?? 0),
+                            'extraTax' => round($item->extra_tax ?? 0),
+                            'furtherTax' => round($item->further_tax ?? 0),
+                            'sroScheduleNo' => '',
+                            'fedPayable' => 0,
+                            'discount' => 0,
+                            'saleType' => $item->sale_type ?? 'Goods at standard rate (default)',
+                            'sroItemSerialNo' => ''
+                        ];
+                    })->toArray()
+            ];
+        }
+        if($invoice->registration_type === "Unregistered"){
+            $payload = [
+                'invoiceType' => $invoice->invoice_type,
+                'invoiceDate' => Carbon::parse($invoice->date_of_supply)->format('Y-m-d'),
+                'sellerNTNCNIC' => env('sellerNTNCNIC'),
+                'sellerBusinessName' => env('sellerBusinessName'),
+                'sellerProvince' =>  env('sellerProvince'),
+                'sellerAddress' =>  env('sellerAddress'),
+    
+                'buyerNTNCNIC' => $invoice->customer->ntn_cnic,
+                'buyerBusinessName' => $invoice->customer->name,
+                'buyerProvince' => $invoice->customer->province,
+                'buyerAddress' => $invoice->customer->address,
+                'buyerRegistrationType' => 'Unregistered',
+                'invoiceRefNo' => $invoice->invoice_no,
+                'scenarioId' => 'SN002',
+                'items' => $invoice->items->map(function ($item) {
+                        return [
+                            'hsCode' => $item->item->hs_code,
+                            'productDescription' => $item->item->name ?? $item->item->description ,
+                            'rate' => round($item->sale_tax_rate) . '%',
+                            'uoM' => $item->item->unit,
+                            'quantity' => round($item->quantity),
+                            'totalValues' => round($item->total), 
+                            'valueSalesExcludingST' => round($item->value_of_goods),
+                            'fixedNotifiedValueOrRetailPrice' => 0,
+                            'salesTaxApplicable' => $item->amount_of_saleTax,
+                            'salesTaxWithheldAtSource' => round($item->sale_tax_withheld ?? 0),
+                            'extraTax' => round($item->extra_tax ?? 0),
+                            'furtherTax' => round($item->further_tax ?? 0),
+                            'sroScheduleNo' => '',
+                            'fedPayable' => 0,
+                            'discount' => 0,
+                            'saleType' => $item->sale_type ?? 'Goods at standard rate (default)',
+                            'sroItemSerialNo' => ''
+                        ];
+                    })->toArray()
+            ];
+        }
+        
         // $payload = [ 
         //     "invoiceType" => "Sale Invoice", 
         //     "invoiceDate" => "2025-04-21", 
@@ -110,7 +151,7 @@ class FbrInvoiceController extends Controller
         if($statusCode == 200 && $responseJson != null) {
             if(isset($responseJson['validationResponse'])){
                 if($responseJson['validationResponse']['statusCode'] == "00"){
-                    $fbrInvNo = $responseJson['validationResponse']['invoiceStatuses'][0]['invoiceNo']; 
+                    $fbrInvNo = $responseJson['invoiceNumber']; 
                     $invoice->fbr_invoice_no = $fbrInvNo;
                     $invoice->response = serialize($responseJson);
                     $invoice->posting = 1;

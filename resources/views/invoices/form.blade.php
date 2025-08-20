@@ -1,7 +1,7 @@
 <div class="mb-3">
     <label>Customer *</label>
     <select name="customer_id" class="form-control" required>
-        <option value="">-- Select Customer --</option>
+        <option value="">  Select Customer </option>
         @foreach($customers as $customer)
             <option value="{{ $customer->id }}" {{ old('customer_id', $invoice->customer_id ?? '') == $customer->id ? 'selected' : '' }}>
                 {{ $customer->name }}
@@ -11,16 +11,27 @@
 </div>
 
 <div class="mb-3">
+    <label>Customer Registration type *</label>
+    <select name="registration_type" class="form-control" required>
+        <option value="">Select Customer Registration type </option>
+        <option value="Registered" {{ old('registration_type', $invoice->registration_type ?? '') == 'Registered' ? 'selected' : '' }}>Registered</option>
+        <option value="Unregistered" {{ old('registration_type', $invoice->registration_type ?? '') == 'Unregistered' ? 'selected' : '' }}>Unregistered</option>
+        </select>
+</div>
+
+
+<div class="mb-3">
     <label>Date of Supply *</label>
     <input type="date" name="date_of_supply" class="form-control" 
         value="{{ old('date_of_supply', $invoice->date_of_supply ?? now()->format('Y-m-d')) }}" required>
-</div>
+</div>        
 
 <div class="mb-3">
     <label>Time of Supply *</label>
     <input type="time" name="time_of_supply" class="form-control" 
         value="{{ old('time_of_supply', $invoice->time_of_supply ?? now()->format('H:i')) }}" required>
-</div>
+</div>        
+
 <h5 class="mt-4 mb-2">Invoice Items</h5>
 <div id="items-table-wrapper">
     <table class="table table-bordered" id="items-table">
@@ -113,9 +124,9 @@ function calculateRow(row) {
     const tax = value * rate / 100;
     const total = value + tax + et + stw + ft;
 
-    row.find('.value').val(value.toFixed(2));
     row.find('.st-amount').val(tax.toFixed(2));
-    row.find('.total').val(total.toFixed(2));
+    row.find('.value').val(Math.round(value));
+    row.find('.total').val(Math.round(total));
 }
 
 $(document).on('input', '.unit-price, .quantity, .st-rate, .et, .stw, .ft', function () {

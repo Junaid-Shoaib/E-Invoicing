@@ -13,7 +13,7 @@
                 
                 <div class="card-body">
                     <form id="filter-form" class="row mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <select name="customer_id" class="form-control">
                             <option value="">-- All Customers --</option>
                             @foreach($customers as $customer)
@@ -22,9 +22,17 @@
                         </select>
                     </div>
                     <div class="col-md-3">
+                        <select name="item_id" class="form-control">
+                            <option value="">-- Product Name --</option>
+                            @foreach($items as $item)
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <input type="date" name="start_date" class="form-control" placeholder="From Date">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <input type="date" name="end_date" class="form-control" placeholder="To Date">
                     </div>
                     <div class="col-md-2">
@@ -46,6 +54,7 @@
                                     <th>Date</th>
                                     <th>Time</th>
                                     <th>FBR Invoice No</th>
+                                    <th>Registration Type</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -67,6 +76,7 @@
             url: '{{ route('invoices.index') }}',
             data: function (d) {
                 d.customer_id = $('select[name=customer_id]').val();
+                d.item_id = $('select[name=item_id]').val();
                 d.start_date = $('input[name=start_date]').val();
                 d.end_date = $('input[name=end_date]').val();
             }
@@ -78,6 +88,7 @@
             { data: 'date_of_supply', name: 'date_of_supply' },
             { data: 'time_of_supply', name: 'time_of_supply' },
             { data: 'fbr_invoice_no', name: 'fbr_invoice_no' },
+            { data: 'registration_type', name: 'registration_type' },
             { data: 'action', name: 'action', orderable: false, searchable: false },
         ]
     });

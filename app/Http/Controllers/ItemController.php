@@ -17,14 +17,14 @@ class ItemController extends Controller
                 $btn = '<div class="d-flex gap-1">'; // Bootstrap 5 flex utility for spacing
 
                 // Edit Button
+                
+                // Check invoice usage
+                $invoiceCount = InvoiceItem::where('item_id', $row->id)->count();
+                
+                if ($invoiceCount === 0) {
                 $btn .= '<a href="' . route('items.edit', $row->id) . '" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i> Edit
                         </a>';
-
-                // Check invoice usage
-            $invoiceCount = InvoiceItem::where('item_id', $row->id)->count();
-
-            if ($invoiceCount === 0) {
                 $btn .= '<form action="' . route('items.destroy', $row->id) . '" method="POST" onsubmit="return confirm(\'Are you sure?\')">
                             ' . csrf_field() . method_field("DELETE") . '
                             <button type="submit" class="btn btn-sm btn-danger">

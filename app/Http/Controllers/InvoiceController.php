@@ -18,11 +18,19 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
 
-        $query = Invoice::with('customer');
+        $query = Invoice::orderBy('id','Desc');
 
         if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }
+        
+        
+        if ($request->filled('item_id')) {
+            $query->whereHas('items', function($q) use ($request) {
+                $q->where('item_id', $request->item_id);
+            });
+        }
+        
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date_of_supply', [$request->start_date, $request->end_date]);
@@ -47,8 +55,10 @@ class InvoiceController extends Controller
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\')">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
-                        </form>
-                            <a href="' . route('invoices.posting', $row->id) . '" class="btn btn-sm btn-outline-primary ml-2">
+                        </form> 
+                            <a href="' . route('invoices.posting', $row->id) . '" 
+                                class="btn btn-sm btn-outline-primary ml-2" 
+                                onclick="return confirm(`Are you sure you want to post this Invoice?`)">
                                 <i class="fas fa-upload"></i> Invoice Post
                             </a>';
                     };
@@ -67,8 +77,9 @@ class InvoiceController extends Controller
                 ->make(true);
         }
         $customers = Customer::orderBy('name')->get();
+        $items = Item::orderBy('name')->get();
 
-        return view('invoices.index', compact('customers'));
+        return view('invoices.index', compact('customers','items'));
     }
 
     public function exportExcel(Request $request)
@@ -78,6 +89,12 @@ class InvoiceController extends Controller
         if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }
+        if ($request->filled('item_id')) {
+            $query->whereHas('items', function($q) use ($request) {
+                $q->where('item_id', $request->item_id);
+            });
+        }
+        
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date_of_supply', [$request->start_date, $request->end_date]);
         }
@@ -93,6 +110,14 @@ class InvoiceController extends Controller
         if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }
+
+        if ($request->filled('item_id')) {
+            $query->whereHas('items', function($q) use ($request) {
+                $q->where('item_id', $request->item_id);
+            });
+        }
+
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date_of_supply', [$request->start_date, $request->end_date]);
         }
@@ -132,6 +157,7 @@ class InvoiceController extends Controller
     {
         $request->validate([
             'customer_id' => 'required',
+            'registration_type' => 'required',
             'date_of_supply' => 'required|date',
             'time_of_supply' => 'required',
             'items' => 'required|array',
@@ -157,6 +183,7 @@ class InvoiceController extends Controller
 
         $invoice = Invoice::create([
             'customer_id' => $request->customer_id,
+            'registration_type' => $request->registration_type,
             'invoice_no' => $invoiceNo,
             'date_of_supply' => $request->date_of_supply,
             'time_of_supply' => $request->time_of_supply,
@@ -182,6 +209,7 @@ class InvoiceController extends Controller
     {
         $request->validate([
             'customer_id' => 'required',
+            'registration_type' => 'required',
             'date_of_supply' => 'required|date',
             'time_of_supply' => 'required',
             'items' => 'required|array',
@@ -199,6 +227,7 @@ class InvoiceController extends Controller
 
         $invoice->update([
             'customer_id' => $request->customer_id,
+            'registration_type' => $request->registration_type,
             'date_of_supply' => $request->date_of_supply,
             'time_of_supply' => $request->time_of_supply,
         ]);

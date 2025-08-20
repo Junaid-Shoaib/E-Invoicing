@@ -21,17 +21,21 @@ class CustomerController extends Controller
 
             return DataTables::of($customers)
                 ->addColumn('action', function ($row) {
-                    $editBtn = '<a href="' . route('customers.edit', $row->id) . '" class="btn btn-sm btn-warning me-1">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>';
                     $invoiceCount = Invoice::where('customer_id', $row->id)->count();
                     if ($invoiceCount === 0) {
+                        $editBtn = '<a href="' . route('customers.edit', $row->id) . '" class="btn btn-sm btn-warning me-1">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>';
                         $editBtn .= '<form action="' . route('customers.destroy', $row->id) . '" method="POST" style="display:inline-block;" onsubmit="return confirm(\'Are you sure?\')">
                                         ' . csrf_field() . method_field('DELETE') . '
                                         <button type="submit" class="btn btn-sm btn-danger">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>
                                     </form>';
+                    }else{
+                         $editBtn = '<span class="text-muted" title="Item in use">
+                            <i class="fas fa-lock"></i> In Use
+                        </span>';
                     }
 
                     return $editBtn;

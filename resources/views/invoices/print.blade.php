@@ -98,7 +98,22 @@
 
 <body>
 
-    <h2>Sales Tax Invoice</h2>
+    <table style="width: 100%; border: none; margin-bottom: 10px;">
+    <tr>
+        <!-- Left: Company Logo -->
+        <td style="width: 0%; border: none; text-align: left;">
+            <img src="{{ asset('images/logo.png') }}" alt="Company Logo" style="height: 80px;">
+        </td>
+
+        <!-- Center: Title -->
+        <td style="width: 80%; border: none; text-align: left; vertical-align: middle;">
+            <h2 style="margin: 0; font-size: 20px;">Sales Tax Invoice</h2>
+        </td>
+
+        <!-- Right: (Optional empty / QR / anything) -->
+        <td style="width: 20%; border: none;"></td>
+    </tr>
+</table>
     <table class="no-border">
         <tr>
             <td><strong>Invoice No:</strong> {{ $invoice->invoice_no }}
@@ -152,10 +167,11 @@
                 <th style="width: 15%;">Description of Goods</th>
                 <th style="width: 9%;">Invoice Type</th>
                 <th style="width: 9%;">Sale Type</th>
-                <th style="width: 6%;">Rate</th>
                 <th style="width: 5%;">UOM</th>
+                <th style="width: 5%;">Unit Price</th>
                 <th style="width: 6%;">Qty</th>
                 <th style="width: 10%;">Value (Excl. ST)</th>
+                <th style="width: 6%;">Rate</th>
                 <th style="width: 10%;">Sales Tax/FED</th>
                 <th style="width: 8%;">ST WH</th>
                 <th style="width: 6%;">Extra Tax</th>
@@ -164,16 +180,37 @@
             </tr>
         </thead>
         <tbody>
+            @php
+                $rate = 0;
+                $total_quantity = 0;
+                $total_value_of_goods = 0;
+                $total_amount_of_saleTax = 0;
+                $total_sale_tax_withheld = 0;
+                $total_extra_tax = 0;
+                $total_further_tax = 0;
+                $grand_total = 0;
+            @endphp
             @foreach($invoice->items as $inv_item)
+                @php
+                    $rate = $inv_item->sale_tax_rate;
+                    $total_quantity += $inv_item->quantity;
+                    $total_value_of_goods += $inv_item->value_of_goods;
+                    $total_amount_of_saleTax += $inv_item->amount_of_saleTax;
+                    $total_sale_tax_withheld += $inv_item->sale_tax_withheld;
+                    $total_extra_tax += $inv_item->extra_tax;
+                    $total_further_tax += $inv_item->further_tax;
+                    $grand_total += $inv_item->total;
+                @endphp
                 <tr>
                     <td>{{ $inv_item->item->hs_code }}</td>
-                    <td>{{ $inv_item->item->name }}</td>
+                    <td>{!! $inv_item->item->name . '<br>' . $inv_item->item->description !!}</td>
                     <td>{{ $invoice->invoice_type }}</td>
                     <td>{{  $inv_item->sale_Type }}</td>
-                    <td>{{ number_format($inv_item->sale_tax_rate, 2) }}%</td>
                     <td>{{ $inv_item->item->unit }}</td>
+                    <td>{{ $inv_item->unit_price }}</td>
                     <td>{{ $inv_item->quantity }}</td>
                     <td>{{ number_format($inv_item->value_of_goods, 2) }}</td>
+                    <td>{{ number_format($inv_item->sale_tax_rate, 0) }}%</td>
                     <td>{{ number_format($inv_item->amount_of_saleTax, 2) }}</td>
                     <td>{{ number_format($inv_item->sale_tax_withheld, 2) }}</td>
                     <td>{{ number_format($inv_item->extra_tax, 2) }}</td>
@@ -185,19 +222,26 @@
             {{-- Empty rows --}}
             @for($i = $invoice->items->count(); $i < 5; $i++)
                 <tr>
-                    @for($j = 0; $j < 13; $j++)
+                    @for($j = 0; $j < 14; $j++)
                         <td>&nbsp;</td>
                     @endfor
                 </tr>
             @endfor
+            <tr style="font-weight: bold;">
+                <td colspan="6" style="text-align: right;">Total:</td>
+                <td>{{ $total_quantity }}</td>
+                <td>{{ number_format($total_value_of_goods, 2) }}</td>
+                <td>{{ number_format($rate, 0)  }}%</td>
+                <td>{{ number_format($total_amount_of_saleTax, 2) }}</td>
+                <td>{{ number_format($total_sale_tax_withheld, 2) }}</td>
+                <td>{{ number_format($total_extra_tax, 2) }}</td>
+                <td>{{ number_format($total_further_tax, 2) }}</td>
+                <td>{{ number_format($grand_total, 2) }}</td>
+            </tr>
         </tbody>
     </table>
 
-    <div class="total-summary">
-        Total Invoice Amount: {{ number_format($invoice->items->sum('total'), 2) }}
-    </div>
-
-    <div class="total-summary">
+    <div class="total-summary" style="text-align:right">
         Amount in Words:
         <em>{{ ucwords(\NumberFormatter::create('en', NumberFormatter::SPELLOUT)->format($invoice->items->sum('total'))) }}
             only</em>

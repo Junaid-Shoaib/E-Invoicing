@@ -79,8 +79,22 @@
 </head>
 
 <body>
+    <table style="width: 100%; border: none; margin-bottom: 10px;">
+        <tr>
+            <!-- Left: Company Logo -->
+            <td style="width: 0%; border: none; text-align: left;">
+                <img src="{{ asset('images/logo.png') }}" alt="Company Logo" style="height: 80px;">
+            </td>
 
-    <h2>Sales Tax Invoice</h2>
+            <!-- Center: Title -->
+            <td style="width: 80%; border: none; text-align: left; vertical-align: middle;">
+                <h2 style="margin: 0; font-size: 20px;">Sales Tax Invoice</h2>
+            </td>
+
+            <!-- Right: (Optional empty / QR / anything) -->
+            <td style="width: 20%; border: none;"></td>
+        </tr>
+    </table>
     <table class="no-border">
         <tr>
             <td><strong>Invoice No:</strong> {{ $invoice->invoice_no }}</td>
@@ -139,7 +153,7 @@
             @foreach($invoice->items as $item)
                 <tr>
                     <td>{{ $item->item->hs_code }}</td>
-                    <td>{{ $item->item->name }}</td>
+                    <td>{!! $item->item->name . '<br>' . $item->item->description !!}</td>
                     <td>{{ $item->item->unit }}</td>
                     <td>{{ $item->quantity }}</td>
                     <td>{{ number_format($item->value_of_goods, 2) }}</td>
