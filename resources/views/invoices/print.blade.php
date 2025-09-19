@@ -128,13 +128,13 @@
 
     <table>
         <tr>
-            <td style="width: 50%;">
+            <td style="width: 50%; vertical-align: top;">
                 <strong>Supplier's Name & Address:</strong><br>
-                Petrochemical & Lubricants Co(Pvt) Ltd<br>
+                Petrochemical & Lubricants Co (Pvt) Ltd<br>
                 2nd Floor, Statelife Building No 3,<br>
                 Dr Zia Uddin Ahmed Road, Karachi
             </td>
-            <td style="width: 50%;">
+            <td style="width: 50%; vertical-align: top;">
                 <strong>Buyer’s Name & Address:</strong><br>
                 {{ $invoice->customer->name ?? '-' }}<br>
                 {{ $invoice->customer->address ?? '-' }}
@@ -181,7 +181,6 @@
         </thead>
         <tbody>
             @php
-                $rate = 0;
                 $total_quantity = 0;
                 $total_value_of_goods = 0;
                 $total_amount_of_saleTax = 0;
@@ -192,7 +191,6 @@
             @endphp
             @foreach($invoice->items as $inv_item)
                 @php
-                    $rate = $inv_item->sale_tax_rate;
                     $total_quantity += $inv_item->quantity;
                     $total_value_of_goods += $inv_item->value_of_goods;
                     $total_amount_of_saleTax += $inv_item->amount_of_saleTax;
@@ -231,7 +229,7 @@
                 <td colspan="6" style="text-align: right;">Total:</td>
                 <td>{{ $total_quantity }}</td>
                 <td>{{ number_format($total_value_of_goods, 2) }}</td>
-                <td>{{ number_format($rate, 0)  }}%</td>
+                <td></td>
                 <td>{{ number_format($total_amount_of_saleTax, 2) }}</td>
                 <td>{{ number_format($total_sale_tax_withheld, 2) }}</td>
                 <td>{{ number_format($total_extra_tax, 2) }}</td>
