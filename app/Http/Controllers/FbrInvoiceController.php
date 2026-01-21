@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\Exception\HttpException;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Exception;
@@ -136,47 +137,51 @@ class FbrInvoiceController extends Controller
         //     ] 
         // ];
 
-        $client = HttpClient::create();
-        try {
-        $response = $client->request('POST', $apiUrl, [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => "Bearer {$apiKey}",
-            ],
-            'json' => $payload, 
+       $client = HttpClient::create([
+            'timeout'      => 120,
+            'max_duration' => 120,
         ]);
-        $statusCode = $response->getStatusCode();
-        $responseBody = $response->getContent(false); 
-        $responseJson = json_decode($responseBody, true);
-        if($statusCode == 200 && $responseJson != null) {
-            if(isset($responseJson['validationResponse'])){
-                if($responseJson['validationResponse']['statusCode'] == "00"){
-                    $fbrInvNo = $responseJson['invoiceNumber']; 
-                    $invoice->fbr_invoice_no = $fbrInvNo;
-                    $invoice->response = serialize($responseJson);
-                    $invoice->posting = 1;
-                    $invoice->save();
-                    return back()->with('success', "Invoice Posted Successfully");
-                }elseif(!isset($responseJson['validationResponse']['invoiceStatuses']) && $responseJson['validationResponse']['statusCode'] == "01"){
-                    return back()->with('error',$responseJson['validationResponse']['error']);
-                }else{
-			foreach($responseJson['validationResponse']['invoiceStatuses'] as $key => $validateResp){
-				if($validateResp['statusCode'] == "001"){
-                			return back()->with('error',$responseJson['validationResponse']['invoiceStatuses'][$key]['error']);	
-				}
-			}
+        try {
+            $response = $client->request('POST', $apiUrl, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => "Bearer {$apiKey}",
+                ],
+                'json' => $payload,
+                'timeout' => 120, 
+            ]);
+            $statusCode = $response->getStatusCode();
+            $responseBody = $response->getContent(false); 
+            $responseJson = json_decode($responseBody, true);
+            if($statusCode == 200 && $responseJson != null) {
+                if(isset($responseJson['validationResponse'])){
+                    if($responseJson['validationResponse']['statusCode'] == "00"){
+                        $fbrInvNo = $responseJson['invoiceNumber']; 
+                        $invoice->fbr_invoice_no = $fbrInvNo;
+                        $invoice->response = serialize($responseJson);
+                        $invoice->posting = 1;
+                        $invoice->save();
+                        return back()->with('success', "Invoice Posted Successfully");
+                    }elseif(!isset($responseJson['validationResponse']['invoiceStatuses']) && $responseJson['validationResponse']['statusCode'] == "01"){
+                        return back()->with('error',$responseJson['validationResponse']['error']);
+                    }else{
+                foreach($responseJson['validationResponse']['invoiceStatuses'] as $key => $validateResp){
+                    if($validateResp['statusCode'] == "001"){
+                                return back()->with('error',$responseJson['validationResponse']['invoiceStatuses'][$key]['error']);	
+                    }
                 }
+                    }
+                }else{
+                    return back()->with('error','Validation Response Failed!');
+                }
+            }elseif($statusCode == 401){
+                return back()->with('error',$responseJson['validationResponse']['error']);
             }else{
-                return back()->with('error','Validation Response Failed!');
+                return back()->with('error','Something Went Wrong');
             }
-        }elseif($statusCode == 401){
-            return back()->with('error',$responseJson['validationResponse']['error']);
-        }else{
-            return back()->with('error','Something Went Wrong');
-        }
             return $responseJson;
-        } catch (HttpException $e) {
-            return back()->with('error',$e);
+        } catch (TransportExceptionInterface $e) {
+            return back()->with('error', 'FBR request failed: '.$e->getMessage());
         }
 
     }

@@ -10,6 +10,7 @@ use App\Models\InvoiceItem;
 use App\Models\Item;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\InvoicesExport;
+use Carbon\Carbon;
 use PDF;
 
 class InvoiceController extends Controller
@@ -57,8 +58,8 @@ class InvoiceController extends Controller
                             </button>
                         </form> 
                             <a href="' . route('invoices.posting', $row->id) . '" 
-                                class="btn btn-sm btn-outline-primary ml-2" 
-                                onclick="return confirm(`Are you sure you want to post this Invoice?`)">
+                                class="btn btn-sm btn-outline-primary ml-2 post-btn"
+                                onclick="return handleInvoicePost(event, this)">
                                 <i class="fas fa-upload"></i> Invoice Post
                             </a>';
                     };
@@ -74,6 +75,7 @@ class InvoiceController extends Controller
                     return $btn;
                 })
                 ->rawColumns(['fbr_invoice_no','action'])
+                ->addIndexColumn()
                 ->make(true);
         }
         $customers = Customer::orderBy('name')->get();
@@ -172,7 +174,7 @@ class InvoiceController extends Controller
             'items.*.total' => 'required|numeric',
         ]);
 
-        $prefix = now()->format('Ym');
+        $prefix = Carbon::parse($request->date_of_supply)->format('Ym');
 
         $count = Invoice::where('invoice_no', 'LIKE', "{$prefix}-%")->count();
 

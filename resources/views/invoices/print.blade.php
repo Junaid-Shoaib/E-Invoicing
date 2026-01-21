@@ -15,17 +15,15 @@
         table {
             width: 100%;
             border-collapse: collapse;
-        }
-
-       
-        th,
-        td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: left;
-            font-size: 11px;
+            table-layout: auto;   /*  <-- was missing */
             word-wrap: break-word;
-       
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+            font-size: 10px;
+            white-space: normal;  /* allow wrapping */
         }
 
         .no-border td {
@@ -93,6 +91,8 @@
             font-family: sans-serif;
             font-size: 12px;
         }
+
+        .desc-cell { word-break: break-word; }
     </style>
 </head>
 
@@ -163,20 +163,20 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 6%;">H.S. Code</th>
-                <th style="width: 15%;">Description of Goods</th>
-                <th style="width: 9%;">Invoice Type</th>
-                <th style="width: 9%;">Sale Type</th>
-                <th style="width: 5%;">UOM</th>
-                <th style="width: 5%;">Unit Price</th>
-                <th style="width: 6%;">Qty</th>
-                <th style="width: 10%;">Value (Excl. ST)</th>
-                <th style="width: 6%;">Rate</th>
-                <th style="width: 10%;">Sales Tax/FED</th>
-                <th style="width: 8%;">ST WH</th>
-                <th style="width: 6%;">Extra Tax</th>
-                <th style="width: 6%;">Further Tax</th>
-                <th style="width: 10%;">Total</th>
+                <th>H.S. Code</th>
+                <th class="desc-cell">Description of Goods</th>
+                <th class="desc-cell">Invoice Type</th>
+                <th class="desc-cell">Sale Type</th>
+                <th>UOM</th>
+                <th>Unit Price</th>
+                <th>Qty</th>
+                <th>Value (Excl. ST)</th>
+                <th>Rate</th>
+                <th class="desc-cell">Sales Tax/FED</th>
+                <th>ST WH</th>
+                <th>Extra Tax</th>
+                <th>Further Tax</th>
+                <th>Total</th>
             </tr>
         </thead>
         <tbody>
@@ -201,15 +201,15 @@
                 @endphp
                 <tr>
                     <td>{{ $inv_item->item->hs_code }}</td>
-                    <td>{!! $inv_item->item->name . '<br>' . $inv_item->item->description !!}</td>
-                    <td>{{ $invoice->invoice_type }}</td>
-                    <td>{{  $inv_item->sale_Type }}</td>
+                    <td class="desc-cell" >{!! $inv_item->item->name . '<br>' . $inv_item->item->description !!}</td>
+                    <td class="desc-cell">{{ $invoice->invoice_type }}</td>
+                    <td class="desc-cell">{{  $inv_item->sale_Type }}</td>
                     <td>{{ $inv_item->item->unit }}</td>
                     <td>{{ $inv_item->unit_price }}</td>
                     <td>{{ $inv_item->quantity }}</td>
                     <td>{{ number_format($inv_item->value_of_goods, 2) }}</td>
                     <td>{{ number_format($inv_item->sale_tax_rate, 0) }}%</td>
-                    <td>{{ number_format($inv_item->amount_of_saleTax, 2) }}</td>
+                    <td class="desc-cell">{{ number_format($inv_item->amount_of_saleTax, 2) }}</td>
                     <td>{{ number_format($inv_item->sale_tax_withheld, 2) }}</td>
                     <td>{{ number_format($inv_item->extra_tax, 2) }}</td>
                     <td>{{ number_format($inv_item->further_tax, 2) }}</td>

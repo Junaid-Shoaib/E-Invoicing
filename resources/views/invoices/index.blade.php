@@ -48,7 +48,7 @@
                         <table class="table table-bordered" id="invoices-table" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>S.NO</th>
                                     <th>Invoice No</th>
                                     <th>Customer</th>
                                     <th>Date</th>
@@ -82,12 +82,12 @@
             }
         },
         columns: [
-            { data: 'id', name: 'id' },
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'invoice_no', name: 'invoice_no' },
-            { data: 'customer', name: 'customer.name' },
+            { data: 'customer', name: 'customer.name', orderable: false, searchable: false },
             { data: 'date_of_supply', name: 'date_of_supply' },
             { data: 'time_of_supply', name: 'time_of_supply' },
-            { data: 'fbr_invoice_no', name: 'fbr_invoice_no' },
+            { data: 'fbr_invoice_no', name: 'fbr_invoice_no', searchable: true },
             { data: 'registration_type', name: 'registration_type' },
             { data: 'action', name: 'action', orderable: false, searchable: false },
         ]
@@ -110,6 +110,26 @@
     });
 
 });
+
+
+</script>
+
+<script>
+function handleInvoicePost(event, button) {
+    event.preventDefault(); // stop normal redirect
+
+    if (!confirm("Are you sure you want to post1 this Invoice?")) {
+        return false;
+    }
+
+    // Disable button instantly
+    button.disabled = true;
+    button.style.pointerEvents = 'none';
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+
+    // Redirect to the posting route
+    window.location.href = button.getAttribute('href');
+}
 
 </script>
 @endpush
